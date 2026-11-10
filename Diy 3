@@ -1,62 +1,55 @@
 #include <iostream>
+#include <stdexcept>
 using namespace std;
 
-class Person {
-protected:
-    string name;
+class SafeArray {
+    int* arr;
+    int size;
 
 public:
-    Person(string n) {
-        name = n;
-        cout << "Person Constructor Called" << endl;
+    SafeArray(int s) {
+        size = s;
+        arr = new int[size];
+
+        for (int i = 0; i < size; i++) {
+            arr[i] = 0;
+        }
     }
 
-    void displayPerson() {
-        cout << "Name: " << name << endl;
-    }
-};
+    int& operator[](int index) {
+        if (index < 0 || index >= size) {
+            throw out_of_range("Array index out of range");
+        }
 
-class Student : virtual public Person {
-protected:
-    int rollNo;
-
-public:
-    Student(string n, int r) : Person(n) {
-        rollNo = r;
-        cout << "Student Constructor Called" << endl;
-    }
-};
-
-class Employee : virtual public Person {
-protected:
-    int empId;
-
-public:
-    Employee(string n, int e) : Person(n) {
-        empId = e;
-        cout << "Employee Constructor Called" << endl;
-    }
-};
-
-class TA : public Student, public Employee {
-public:
-    TA(string n, int r, int e)
-        : Person(n), Student(n, r), Employee(n, e) {
-        cout << "TA Constructor Called" << endl;
+        return arr[index];
     }
 
-    void display() {
-        displayPerson();
-        cout << "Roll Number: " << rollNo << endl;
-        cout << "Employee ID: " << empId << endl;
+    ~SafeArray() {
+        delete[] arr;
     }
 };
 
 int main() {
-    TA t("Sahil", 25, 101);
+    SafeArray a(5);
 
-    cout << "\nTA Details" << endl;
-    t.display();
+    try {
+        a[0] = 10;
+        a[1] = 20;
+        a[2] = 30;
+
+        cout << "Array Elements:" << endl;
+
+        for (int i = 0; i < 5; i++) {
+            cout << a[i] << " ";
+        }
+
+        cout << endl;
+
+        cout << "Accessing index 7: " << a[7] << endl;
+    }
+    catch (exception& e) {
+        cout << "Error: " << e.what() << endl;
+    }
 
     return 0;
 }
