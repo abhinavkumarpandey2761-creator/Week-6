@@ -1,48 +1,57 @@
 #include <iostream>
+#include <numeric>
 using namespace std;
 
-class Shape {
-protected:
-    string name;
+class Fraction {
+    int numerator, denominator;
 
-public:
-    Shape(string n) {
-        name = n;
-        cout << "Shape Constructor Called" << endl;
-    }
-};
+    void simplify() {
+        int gcd = std::gcd(numerator, denominator);
 
-class Polygon : public Shape {
-protected:
-    int sides;
+        numerator /= gcd;
+        denominator /= gcd;
 
-public:
-    Polygon(string n, int s) : Shape(n) {
-        sides = s;
-        cout << "Polygon Constructor Called" << endl;
-    }
-};
-
-class Rectangle : public Polygon {
-    float area;
-
-public:
-    Rectangle(string n, int s, float a) : Polygon(n, s) {
-        area = a;
-        cout << "Rectangle Constructor Called" << endl;
+        if (denominator < 0) {
+            numerator = -numerator;
+            denominator = -denominator;
+        }
     }
 
-    void display() {
-        cout << "\nShape: " << name << endl;
-        cout << "Number of Sides: " << sides << endl;
-        cout << "Area: " << area << endl;
+public:
+    Fraction(int n = 0, int d = 1) {
+        numerator = n;
+        denominator = d;
+        simplify();
+    }
+
+    friend istream& operator>>(istream& in, Fraction& f) {
+        cout << "Enter numerator and denominator: ";
+        in >> f.numerator >> f.denominator;
+
+        if (f.denominator == 0) {
+            throw invalid_argument("Denominator cannot be zero");
+        }
+
+        f.simplify();
+        return in;
+    }
+
+    friend ostream& operator<<(ostream& out, Fraction f) {
+        out << f.numerator << "/" << f.denominator;
+        return out;
     }
 };
 
 int main() {
-    Rectangle r("Rectangle", 4, 50.5);
+    Fraction f;
 
-    r.display();
+    try {
+        cin >> f;
+        cout << "Simplified Fraction: " << f << endl;
+    }
+    catch (exception& e) {
+        cout << "Error: " << e.what() << endl;
+    }
 
     return 0;
 }
